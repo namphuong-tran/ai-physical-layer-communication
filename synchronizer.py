@@ -1,6 +1,9 @@
+import numpy as np
 import torch
 import torch.nn as nn
+import torch.optim as optim
 import torch.nn.functional as F
+from torch.utils.data import Dataset, DataLoader
 
 class CNNPacketDetection(nn.Module):
     def __init__(self, input_length, num_classes):
@@ -18,3 +21,24 @@ class CNNPacketDetection(nn.Module):
         x = F.relu(self.fc1(x))
         x = self.fc2(x)
         return x
+
+# Load the datasets from files
+dataset_y = np.load('dataset_y.npy')
+dataset_t = np.load('dataset_t.npy')
+
+# Create a custom PyTorch Dataset class
+class TimingDataset(Dataset):
+    def __init__(self, inputs, labels):
+        self.inputs = torch.tensor(inputs, dtype=torch.float32)
+        self.labels = torch.tensor(labels, dtype=torch.float32)
+    
+    def __len__(self):
+        return len(self.inputs)
+    
+    def __getitem__(self, idx):
+        return self.inputs[idx], self.labels[idx]
+
+# Create the dataset and DataLoader
+timing_dataset = TimingDataset(dataset_y, dataset_t)
+dataloader = DataLoader(timing_dataset, batch_size=32, shuffle=True)
+
