@@ -23,8 +23,8 @@ class CNNPacketDetection(nn.Module):
         return x
 
 # Load the datasets from files
-dataset_y = np.load('dataset_y.npy')
-dataset_t = np.load('dataset_t.npy')
+input_data = np.load('dataset_y.npy')
+label_data = np.load('dataset_t.npy')
 
 # Create a custom PyTorch Dataset class
 class TimingDataset(Dataset):
@@ -39,14 +39,12 @@ class TimingDataset(Dataset):
         return self.inputs[idx], self.labels[idx]
 
 # Create the dataset and DataLoader
-timing_dataset = TimingDataset(dataset_y, dataset_t)
+timing_dataset = TimingDataset(input_data, label_data)
 dataloader = DataLoader(timing_dataset, batch_size=32, shuffle=True)
 
-M = dataset_y.shape[1]
-N_u = dataset_t.shape[1]
-# Define the input length and number of classes based on your data
-input_length = 2 * M  # Example input length, adjust based on your actual data
-num_classes = N_u  
+input_length = input_data.shape[1]  
+num_classes = label_data.shape[1]   
+
 # Initialize the model, define the loss function and the optimizer
 model = CNNPacketDetection(input_length, num_classes)
 criterion = nn.CrossEntropyLoss()
