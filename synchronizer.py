@@ -80,7 +80,7 @@ for epoch in range(num_epochs):
     epoch_loss = 0
     for inputs, labels in train_loader:
         # Ensure the inputs are of shape (batch_size, 1, input_length)
-        inputs = inputs.unsqueeze(1)
+        inputs = inputs.unsqueeze(1).squeeze(-1)
 
         # Convert labels to appropriate format for CrossEntropyLoss
         labels = torch.argmax(labels, dim=1)
