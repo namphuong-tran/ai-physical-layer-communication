@@ -29,8 +29,8 @@ class CNNPacketDetection(nn.Module):
 
 # Function to load files
 def load_files(prefix):
-    y_files = sorted(glob.glob(f'{prefix}_y_*.npy'))
-    t_files = sorted(glob.glob(f'{prefix}_t_*.npy'))
+    y_files = sorted(glob.glob(f'{prefix}/{prefix}_y_*.npy'))
+    t_files = sorted(glob.glob(f'{prefix}/{prefix}_t_*.npy'))
     return y_files, t_files
 
 # Load the training and evaluation datasets from files
@@ -64,8 +64,8 @@ eval_loader = DataLoader(eval_dataset, batch_size=32, shuffle=False)
 # timing_dataset = TimingDataset(input_data, label_data)
 # dataloader = DataLoader(timing_dataset, batch_size=32, shuffle=True)
 
-input_length = train_y_files.shape[1]  
-num_classes = train_t_files.shape[1]   
+input_length = train_dataset.y_data.shape[1]  
+num_classes = train_dataset.t_data.shape[1]   
 
 # Initialize the model, define the loss function and the optimizer
 model = CNNPacketDetection(input_length, num_classes)
