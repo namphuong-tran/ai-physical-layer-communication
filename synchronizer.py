@@ -5,6 +5,10 @@ import torch.optim as optim
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 import csv
+from dataset import ChunkedTimingDataset
+import glob
+
+
 class CNNPacketDetection(nn.Module):
     def __init__(self, input_length, num_classes):
         super(CNNPacketDetection, self).__init__()
@@ -22,28 +26,46 @@ class CNNPacketDetection(nn.Module):
         x = self.fc2(x)
         return x
 
-# Load the datasets from files
-input_data = np.load('dataset_y.npy')
-label_data = np.load('dataset_t.npy')
 
-# Create a custom PyTorch Dataset class
-class TimingDataset(Dataset):
-    def __init__(self, inputs, labels):
-        self.inputs = torch.tensor(inputs, dtype=torch.float32)
-        self.labels = torch.tensor(labels, dtype=torch.float32)
+# Function to load files
+def load_files(prefix):
+    y_files = sorted(glob.glob(f'{prefix}_y_*.npy'))
+    t_files = sorted(glob.glob(f'{prefix}_t_*.npy'))
+    return y_files, t_files
+
+# Load the training and evaluation datasets from files
+train_y_files, train_t_files = load_files('train')
+eval_y_files, eval_t_files = load_files('eval')
+
+# Create the datasets and DataLoaders
+train_dataset = ChunkedTimingDataset(train_y_files, train_t_files)
+eval_dataset = ChunkedTimingDataset(eval_y_files, eval_t_files)
+
+train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+eval_loader = DataLoader(eval_dataset, batch_size=32, shuffle=False)
+
+# # Load the datasets from files
+# input_data = np.load('dataset_y.npy')
+# label_data = np.load('dataset_t.npy')
+
+# # Create a custom PyTorch Dataset class
+# class TimingDataset(Dataset):
+#     def __init__(self, inputs, labels):
+#         self.inputs = torch.tensor(inputs, dtype=torch.float32)
+#         self.labels = torch.tensor(labels, dtype=torch.float32)
     
-    def __len__(self):
-        return len(self.inputs)
+#     def __len__(self):
+#         return len(self.inputs)
     
-    def __getitem__(self, idx):
-        return self.inputs[idx], self.labels[idx]
+#     def __getitem__(self, idx):
+#         return self.inputs[idx], self.labels[idx]
 
-# Create the dataset and DataLoader
-timing_dataset = TimingDataset(input_data, label_data)
-dataloader = DataLoader(timing_dataset, batch_size=32, shuffle=True)
+# # Create the dataset and DataLoader
+# timing_dataset = TimingDataset(input_data, label_data)
+# dataloader = DataLoader(timing_dataset, batch_size=32, shuffle=True)
 
-input_length = input_data.shape[1]  
-num_classes = label_data.shape[1]   
+input_length = train_y_files.shape[1]  
+num_classes = train_t_files.shape[1]   
 
 # Initialize the model, define the loss function and the optimizer
 model = CNNPacketDetection(input_length, num_classes)
@@ -56,7 +78,7 @@ train_losses = []
 num_epochs = 10
 for epoch in range(num_epochs):
     epoch_loss = 0
-    for inputs, labels in dataloader:
+    for inputs, labels in train_loader:
         # Ensure the inputs are of shape (batch_size, 1, input_length)
         inputs = inputs.unsqueeze(1)
 
@@ -75,7 +97,7 @@ for epoch in range(num_epochs):
         optimizer.step()
         epoch_loss += loss.item()
 
-    avg_epoch_loss = epoch_loss / len(dataloader)
+    avg_epoch_loss = epoch_loss / len(train_loader)
     train_losses.append(avg_epoch_loss)
 
     print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {avg_epoch_loss:.4f}')
