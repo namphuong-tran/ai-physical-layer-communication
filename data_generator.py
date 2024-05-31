@@ -70,7 +70,7 @@ dataset_t = []
 N_train = 1e5
 train_ratio = 0.8
 N_train_samples = int(N_train * train_ratio)
-N_eval_samples = N_train - N_train_samples
+N_eval_samples = int(N_train - N_train_samples)
 chunk_size = 1000  # Number of samples per chunk
 
 # Ensure the output directories exist
