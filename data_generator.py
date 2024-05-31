@@ -74,10 +74,8 @@ N_eval_samples = N_train - N_train_samples
 chunk_size = 1000  # Number of samples per chunk
 
 # Ensure the output directories exist
-os.makedirs('train_y', exist_ok=True)
-os.makedirs('train_t', exist_ok=True)
-os.makedirs('eval_y', exist_ok=True)
-os.makedirs('eval_t', exist_ok=True)
+os.makedirs('train', exist_ok=True)
+os.makedirs('eval', exist_ok=True)
 
 def generate_and_save_chunk(start_idx, end_idx, prefix):
     y_data = []
