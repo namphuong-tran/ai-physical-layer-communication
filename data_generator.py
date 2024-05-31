@@ -1,4 +1,6 @@
 import numpy as np
+import os
+
 tau_relax = 27
 delta_tau = 5
 P = 23
@@ -65,31 +67,55 @@ def generate_received_signal(tau_p, h_tau_p, s_cp):
 
 dataset_y = []
 dataset_t = []
-
 N_train = 1e5
-for i in range(N_train):
-    (tau_p, h_tau_p) = calculate_channel_gain_multi_path()
-    s_cp = generate_transmitted_signal()
-    (tilde_tau, r_n) = generate_received_signal(tau_p, h_tau_p, s_cp)
-    # Extract real and imaginary parts and interleave them
-    y_i = np.zeros(2 * M)
-    y_i[0::2] = np.real(r_n)  # Real parts at even indices
-    y_i[1::2] = np.imag(r_n)  # Imaginary parts at odd indices
-    y_i = y_i.reshape(2 * M, 1)
+train_ratio = 0.8
+N_train_samples = int(N_train * train_ratio)
+N_eval_samples = N_train - N_train_samples
+chunk_size = 1000  # Number of samples per chunk
 
-    # Construct true timing offsets t_i as one-hot encoded vectors
-    t_i = np.zeros(Nu, dtype=int)
+# Ensure the output directories exist
+os.makedirs('train_y', exist_ok=True)
+os.makedirs('train_t', exist_ok=True)
+os.makedirs('eval_y', exist_ok=True)
+os.makedirs('eval_t', exist_ok=True)
 
-    index = int(np.floor(tilde_tau + 0.5 * (Lc + tau_relax)))
-    t_i[index] = 1
+def generate_and_save_chunk(start_idx, end_idx, prefix):
+    y_data = []
+    t_data = []
+    for i in range(start_idx, end_idx):
+        (tau_p, h_tau_p) = calculate_channel_gain_multi_path()
+        s_cp = generate_transmitted_signal()
+        (tilde_tau, r_n) = generate_received_signal(tau_p, h_tau_p, s_cp)
+        # Extract real and imaginary parts and interleave them
+        y_i = np.zeros(2 * M)
+        y_i[0::2] = np.real(r_n)  # Real parts at even indices
+        y_i[1::2] = np.imag(r_n)  # Imaginary parts at odd indices
+        y_i = y_i.reshape(2 * M, 1)
 
-    dataset_y.append(y_i)
-    dataset_t.append(t_i)
+        # Construct true timing offsets t_i as one-hot encoded vectors
+        t_i = np.zeros(Nu, dtype=int)
 
-dataset_y = np.array(dataset_y)
-dataset_t = np.array(dataset_t)
+        index = int(np.floor(tilde_tau + 0.5 * (Lc + tau_relax)))
+        t_i[index] = 1
 
-print("Input dataset y (first example):")
-print(dataset_y.shape)
-print("\nData label t (first example):")
-print(dataset_t.shape)
+        y_data.append(y_i)
+        t_data.append(t_i)
+
+    # Convert lists to numpy arrays
+    y_data = np.array(y_data)
+    t_data = np.array(t_data)
+    
+    # Save the data to files
+    np.save(os.path.join(prefix, f'{prefix}_y_{start_idx}_{end_idx}.npy'), y_data)
+    np.save(os.path.join(prefix, f'{prefix}_t_{start_idx}_{end_idx}.npy'), t_data)
+
+# Generate and save training data
+for i in range(0, N_train_samples, chunk_size):
+    generate_and_save_chunk(i, min(i + chunk_size, N_train_samples), 'train')
+
+# Generate and save evaluation data
+for i in range(0, N_eval_samples, chunk_size):
+    generate_and_save_chunk(i, min(i + chunk_size, N_eval_samples), 'eval')
+
+print("Datasets generated and saved in chunks.")
+
