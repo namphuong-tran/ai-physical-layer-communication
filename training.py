@@ -6,6 +6,13 @@ import csv
 from dataset import ChunkedTimingDataset
 import glob
 from synchronizer import CNNSynchronizer
+import datetime
+import os
+current_time = datetime.datetime.now()
+folder_name = "benchmark/" + \
+    current_time.strftime("%Y%m%d_%H%M%S")
+os.mkdir(folder_name)
+
 # Function to load files
 def load_files(prefix):
     y_files = sorted(glob.glob(f'{prefix}/{prefix}_y_*.npy'))
@@ -64,7 +71,7 @@ for epoch in range(num_epochs):
 
     # Save the training loss every 500 epochs
     if (epoch + 1) % 500 == 0:
-        with open('training_loss.csv', 'a', newline='') as csvfile:
+        with open(folder_name + '/training_loss.csv', 'a', newline='') as csvfile:
             writer = csv.writer(csvfile)
             if (epoch + 1) == 500:
                 writer.writerow(['Epoch', 'Loss'])  # Write header only once
@@ -74,7 +81,7 @@ for epoch in range(num_epochs):
 
     if (epoch + 1) % 1000 == 0:
         # Save the model checkpoint
-        torch.save(model.state_dict(), f'model_epoch_{epoch+1}.pth')
+        torch.save(model.state_dict(), folder_name + f'/model_epoch_{epoch+1}.pth')
 
 # Final save of remaining epochs if not a multiple of 500
 if num_epochs % 500 != 0:
