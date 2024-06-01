@@ -8,6 +8,7 @@ N = 128  # Number of sub-carriers
 Lc = 32  # Length of cyclic prefix
 Nu = N + Lc
 M = Nu + N
+sigma_d = 1.0
 epsilon = 0.1  # Example carrier frequency offset (CFO)
 eta = np.random.uniform(0.01, 0.5)
 
@@ -42,6 +43,10 @@ def generate_transmitted_signal():
 
     for n in range(N):
         s_n[n] = (1/N) * np.sum(d_k * np.exp(1j * 2 * np.pi * np.arange(N) * n / N))
+
+    # Normalize s_n to ensure E{|s_n|^2} = sigma_d^2
+    power_s_n = np.mean(np.abs(s_n)**2)
+    s_n = s_n * np.sqrt(sigma_d / power_s_n)
 
     # Step 3: Append the cyclic prefix (CP)
     cp = s_n[-Lc:]  # Last Lc samples of s_n
