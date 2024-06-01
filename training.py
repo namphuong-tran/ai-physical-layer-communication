@@ -62,24 +62,29 @@ for epoch in range(num_epochs):
 
     print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {avg_epoch_loss:.4f}')
 
-    # Save the training loss every 500 or 1000 epochs
+    # Save the training loss every 500 epochs
     if (epoch + 1) % 500 == 0:
-        filename = f'training_loss_epoch_{epoch+1}.csv'
-        with open(filename, 'w', newline='') as csvfile:
+        with open('training_loss.csv', 'a', newline='') as csvfile:
             writer = csv.writer(csvfile)
-            writer.writerow(['Epoch', 'Loss'])
-            for e, loss in enumerate(train_losses):
-                writer.writerow([e + 1, loss])
+            if (epoch + 1) == 500:
+                writer.writerow(['Epoch', 'Loss'])  # Write header only once
+            for e, loss in enumerate(train_losses[-500:]):
+                writer.writerow([epoch + 1 - 499 + e, loss])
+
+
     if (epoch + 1) % 1000 == 0:
         # Save the model checkpoint
         torch.save(model.state_dict(), f'model_epoch_{epoch+1}.pth')
 
-# Final save of all epochs
-with open('training_loss_final.csv', 'w', newline='') as csvfile:
-    writer = csv.writer(csvfile)
-    writer.writerow(['Epoch', 'Loss'])
-    for epoch, loss in enumerate(train_losses):
-        writer.writerow([epoch + 1, loss])
+# Final save of remaining epochs if not a multiple of 500
+if num_epochs % 500 != 0:
+    remaining_epochs = num_epochs % 500
+    with open('training_loss.csv', 'a', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        if num_epochs < 500:
+            writer.writerow(['Epoch', 'Loss'])  # Write header if it hasn't been written
+        for e, loss in enumerate(train_losses[-remaining_epochs:]):
+            writer.writerow([num_epochs - remaining_epochs + e + 1, loss])
 
 # Save the final model
 torch.save(model.state_dict(), 'model_final.pth')
