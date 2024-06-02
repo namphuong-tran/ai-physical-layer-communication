@@ -39,7 +39,10 @@ model = CNNSynchronizer(input_length, num_classes)
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.0005)
 # StepLR scheduler: reduce the learning rate by a factor of 0.1 every 1000 epochs
-scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=1000, gamma=0.1)
+# scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=1000, gamma=0.1)
+# Scheduler initialization with ReduceLROnPlateau
+scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=50, verbose=True)
+
 
 # Initialize lists to store loss values
 train_losses = []
@@ -90,7 +93,9 @@ for epoch in range(num_epochs):
             torch.save(model.state_dict(), folder_name + '/best_model.pth')
             print(f'Model saved at epoch {epoch+1} with loss {avg_epoch_loss:.4f}')
     # Step the scheduler
-    scheduler.step()
+    # scheduler.step() # StepLR
+    scheduler.step(avg_epoch_loss) # ReduceLROnPlateau
+
 
 # Final save of remaining epochs if not a multiple of 500
 if num_epochs % 1000 != 0:
