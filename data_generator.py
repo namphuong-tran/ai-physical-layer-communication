@@ -13,13 +13,20 @@ epsilon = 0.1  # Example carrier frequency offset (CFO)
 eta = np.random.uniform(0.01, 0.5)
 
 def calculate_channel_gain_multi_path():
-    # The direct path tau_p = 0 
-    tau_p = [0] 
-    # Generate remaining delays tau_p using uniform distribution, excluding zero, allowing repeats
-    remaining_tau_p = np.random.randint(1, tau_relax - delta_tau + 1, P - 1)
+    # # The direct path tau_p = 0 
+    # tau_p = [0] 
+    # # Generate remaining delays tau_p using uniform distribution, excluding zero, allowing repeats
+    # remaining_tau_p = np.random.randint(1, tau_relax - delta_tau + 1, P - 1)
 
-    # Combine and sort 
-    tau_p = np.concatenate((tau_p, remaining_tau_p))
+    # # Combine and sort 
+    # tau_p = np.concatenate((tau_p, remaining_tau_p))
+
+    tau_p = np.zeros(P, dtype=int)
+    tau_p[0] = 0  # Direct path
+    # Generate remaining delays tau_p, excluding zero, not allowing repeats
+    remaining_tau_p = np.random.choice(range(1, tau_relax - delta_tau+ 1), size=P-1, replace=False)
+    tau_p[1:] = remaining_tau_p
+
     tau_p = np.sort(tau_p)
 
     # Calculate amplitude gains alpha_p of h_tau_p
