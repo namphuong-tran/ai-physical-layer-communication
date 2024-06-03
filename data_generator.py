@@ -14,8 +14,7 @@ eta = np.random.uniform(0.01, 0.5)
 
 def calculate_channel_gain_multi_path():
     # The direct path tau_p = 0 
-    tau_p = [0]
-
+    tau_p = [0] 
     # Generate remaining delays tau_p using uniform distribution, excluding zero, allowing repeats
     remaining_tau_p = np.random.randint(1, tau_relax - delta_tau + 1, P - 1)
 
@@ -31,6 +30,10 @@ def calculate_channel_gain_multi_path():
 
     # Calculate complex gains h_tau_p
     h_tau_p = alpha_p * np.exp(1j * phi_p)
+
+    # Normalize h_tau_p to unit power
+    average_power = np.mean(np.abs(h_tau_p)**2)
+    h_tau_p /= np.sqrt(average_power)
 
     return (tau_p, h_tau_p)
 
