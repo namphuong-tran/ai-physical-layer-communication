@@ -12,6 +12,12 @@ sigma_d = 1.0
 epsilon = 0.1  # Example carrier frequency offset (CFO)
 eta = np.random.uniform(0.01, 0.5)
 
+# QPSK Modulation
+def qpsk_modulation(num_symbols):
+    bits = np.random.randint(0, 2, num_symbols * 2)  # Generate random bits
+    symbols = 1 - 2 * bits[0::2] + 1j * (1 - 2 * bits[1::2])  # Map to QPSK symbols
+    return symbols
+
 def calculate_channel_gain_multi_path():
     # # The direct path tau_p = 0 
     # tau_p = [0] 
@@ -46,7 +52,8 @@ def calculate_channel_gain_multi_path():
 
 def generate_transmitted_signal():
     # Step 1: Generate the data symbols d_k
-    d_k = np.random.randn(N) + 1j * np.random.randn(N)  # Generate random complex symbols
+    # d_k = np.random.randn(N) + 1j * np.random.randn(N)  # Generate random complex symbols
+    d_k = qpsk_modulation(N)
 
     # Step 2: Calculate the time-domain samples s_n using IDFT
     s_n = np.zeros(N, dtype=complex)
