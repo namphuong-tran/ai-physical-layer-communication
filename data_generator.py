@@ -70,12 +70,15 @@ def generate_received_signal(tau_p, h_tau_p, s_cp):
 
     # Generate M-length received signal
     r_n = np.zeros(M, dtype=complex)
-    w_n = np.random.randn(M) + 1j * np.random.randn(M)  
+    # w_n = np.random.randn(M) + 1j * np.random.randn(M)  
 
     for n in range(M):
+        # r_n[n] = np.sum([h_tau_p[p] * s_cp[(n - tilde_tau - tau_p[p]) % Nu] * 
+        #                 np.exp(1j * 2 * np.pi * epsilon * (n - tilde_tau) / N) 
+        #                 for p in range(P)]) + w_n[n]
         r_n[n] = np.sum([h_tau_p[p] * s_cp[(n - tilde_tau - tau_p[p]) % Nu] * 
                         np.exp(1j * 2 * np.pi * epsilon * (n - tilde_tau) / N) 
-                        for p in range(P)]) + w_n[n]
+                        for p in range(P)]) 
 
     return (tilde_tau, r_n)
 
