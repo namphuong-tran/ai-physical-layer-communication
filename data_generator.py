@@ -127,7 +127,7 @@ def generate_and_save_chunk(start_idx, end_idx, prefix):
         # Construct true timing offsets t_i as one-hot encoded vectors
         t_i = np.zeros(Nu, dtype=int)
 
-        index = int(np.floor(tilde_tau + 0.5 * (Lc + tau_relax)))
+        index = int(np.ceil(tilde_tau + 0.5 * (Lc + tau_relax)))
         t_i[index] = 1
 
         y_data.append(y_i)
