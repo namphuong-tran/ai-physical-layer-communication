@@ -12,11 +12,20 @@ sigma_d = 1.0
 epsilon = 0.1  # Example carrier frequency offset (CFO)
 eta = np.random.uniform(0.01, 0.5)
 
-# QPSK Modulation
-def qpsk_modulation(num_symbols):
-    bits = np.random.randint(0, 2, num_symbols * 2)  # Generate random bits
-    symbols = 1 - 2 * bits[0::2] + 1j * (1 - 2 * bits[1::2])  # Map to QPSK symbols
-    return symbols
+# QPSK Modulation mapping
+def qpsk_modulation(num_symbol):
+    bitstream = np.random.randint(0, 2, 2 * num_symbol)
+    mapping = {
+        (0, 0): 1 + 1j,
+        (0, 1): -1 + 1j,
+        (1, 0): -1 - 1j,
+        (1, 1): 1 - 1j
+    }
+    symbols = []
+    for i in range(0, len(bitstream), 2):
+        symbol = mapping[(bitstream[i], bitstream[i+1])]
+        symbols.append(symbol)
+    return np.array(symbols)
 
 def calculate_channel_gain_multi_path():
     # # The direct path tau_p = 0 
