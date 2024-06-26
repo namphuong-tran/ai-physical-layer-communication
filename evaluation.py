@@ -6,12 +6,12 @@ import torch
 
 # Function to load files
 def load_files(prefix):
-    y_files = sorted(glob.glob(f'{prefix}/{prefix}_y_*.npy'))
-    t_files = sorted(glob.glob(f'{prefix}/{prefix}_t_*.npy'))
+    y_files = sorted(glob.glob('output_data/' + f'{prefix}/{prefix}_data_*.npy'))
+    t_files = sorted(glob.glob('output_data/' + f'{prefix}/{prefix}_labels_*.npy'))
     return y_files, t_files
 
 # Load the training and evaluation datasets from files
-eval_y_files, eval_t_files = load_files('eval')
+eval_y_files, eval_t_files = load_files('test')
 
 eval_dataset = ChunkedTimingDataset(eval_y_files, eval_t_files)
 
@@ -21,7 +21,7 @@ eval_loader = DataLoader(eval_dataset, batch_size=32, shuffle=False)
 input_length = eval_dataset.y_data.shape[1]  
 num_classes = eval_dataset.t_data.shape[1]   
 model = CNNSynchronizer(input_length, num_classes)
-model.load_state_dict(torch.load('model_final.pth'))
+model.load_state_dict(torch.load('benchmark/20240626_134448/best_model.pth'))
 model.eval()  # Set the model to evaluation mode
 
 correct = 0
