@@ -233,7 +233,7 @@ class ofdm_tx:
         elif FLAGS.pilot == 'lte':
             # For Scattered Pilot in a Frame
             # assert(self.nSymbol == 7) #phuongtn
-            self.pilotSc = np.empty([self.P, 2], dtype=int)
+            self.pilotSc = np.zeros([self.P, 2], dtype=int)
 
             for idx in range(self.nSymbol):
                 self.effecSc[:, idx] = self.effecCarriers + idx * self.K
