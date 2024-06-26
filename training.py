@@ -11,17 +11,18 @@ import os
 current_time = datetime.datetime.now()
 folder_name = "benchmark/" + \
     current_time.strftime("%Y%m%d_%H%M%S")
-os.mkdir(folder_name)
+os.makedirs(folder_name, exist_ok=True)
+output_dir = 'output_data/'
 
 # Function to load files
 def load_files(prefix):
-    y_files = sorted(glob.glob(f'{prefix}/{prefix}_y_*.npy'))
-    t_files = sorted(glob.glob(f'{prefix}/{prefix}_t_*.npy'))
+    y_files = sorted(glob.glob(output_dir + f'{prefix}/{prefix}_data_*.npy'))
+    t_files = sorted(glob.glob(output_dir + f'{prefix}/{prefix}_labels_*.npy'))
     return y_files, t_files
 
 # Load the training and evaluation datasets from files
 train_y_files, train_t_files = load_files('train')
-eval_y_files, eval_t_files = load_files('eval')
+eval_y_files, eval_t_files = load_files('test')
 
 # Create the datasets and DataLoaders
 train_dataset = ChunkedTimingDataset(train_y_files, train_t_files)
