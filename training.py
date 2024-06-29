@@ -52,13 +52,14 @@ train_losses = []
 best_loss = float('inf')
 num_epochs = int(1e5)
 for epoch in range(num_epochs):
+    model.train() # Set the model to training mode
     epoch_loss = 0
     for inputs, labels in train_loader:
         # Ensure the inputs are of shape (batch_size, 1, input_length)
-        inputs = inputs.unsqueeze(1).squeeze(-1)
+        inputs = inputs.unsqueeze(1).squeeze(-1).cuda() # Move inputs to GPU
 
         # Convert labels to appropriate format for CrossEntropyLoss
-        labels = torch.argmax(labels, dim=1)
+        labels = torch.argmax(labels, dim=1).cuda() # Move labels to GPU
         
         # Zero the parameter gradients
         optimizer.zero_grad()
@@ -90,7 +91,7 @@ for epoch in range(num_epochs):
     if (epoch + 1) % 100 == 0:
         torch.save(model.state_dict(), folder_name + f'/model_epoch_{epoch+1}.pth')
     # Save the model every 100 epochs if the loss is lower than the best loss
-    if (epoch + 1) % 100 == 0:
+    if (epoch + 1) % 50 == 0:
         if avg_epoch_loss < best_loss:
             best_loss = avg_epoch_loss
             torch.save(model.state_dict(), folder_name + '/best_model.pth')
