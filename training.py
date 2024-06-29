@@ -37,7 +37,8 @@ input_length = train_dataset.y_data.shape[1]
 num_classes = train_dataset.t_data.shape[1]   
 
 # Initialize the model, define the loss function and the optimizer
-model = CNNSynchronizer(input_length, num_classes)
+# Move the model to GPU after initialization
+model = CNNSynchronizer(input_length, num_classes).cuda()
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.005)
 # StepLR scheduler: reduce the learning rate by a factor of 0.1 every 1000 epochs
