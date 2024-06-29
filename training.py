@@ -8,6 +8,7 @@ import glob
 from synchronizer import CNNSynchronizer
 import datetime
 import os
+
 current_time = datetime.datetime.now()
 folder_name = "benchmark/" + \
     current_time.strftime("%Y%m%d_%H%M%S")
@@ -22,14 +23,14 @@ def load_files(prefix):
 
 # Load the training and evaluation datasets from files
 train_y_files, train_t_files = load_files('train')
-eval_y_files, eval_t_files = load_files('test')
+# eval_y_files, eval_t_files = load_files('test')
 
 # Create the datasets and DataLoaders
 train_dataset = ChunkedTimingDataset(train_y_files, train_t_files)
-eval_dataset = ChunkedTimingDataset(eval_y_files, eval_t_files)
-
-train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-eval_loader = DataLoader(eval_dataset, batch_size=32, shuffle=False)
+# eval_dataset = ChunkedTimingDataset(eval_y_files, eval_t_files)
+# Use pinned memory and increase the number of worker processes. Pinned memory enables faster data transfer to the GPU.
+train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True, num_workers=4, pin_memory=True)
+# eval_loader = DataLoader(eval_dataset, batch_size=32, shuffle=False, num_workers=4, pin_memory=True)
 
 
 input_length = train_dataset.y_data.shape[1]  
