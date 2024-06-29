@@ -38,7 +38,7 @@ num_classes = train_dataset.t_data.shape[1]
 # Initialize the model, define the loss function and the optimizer
 model = CNNSynchronizer(input_length, num_classes)
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=0.0005)
+optimizer = optim.Adam(model.parameters(), lr=0.005)
 # StepLR scheduler: reduce the learning rate by a factor of 0.1 every 1000 epochs
 # scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=1000, gamma=0.1)
 # Scheduler initialization with ReduceLROnPlateau
@@ -75,17 +75,17 @@ for epoch in range(num_epochs):
 
     print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {avg_epoch_loss:.4f}')
 
-    # Save the training loss every 1000 epochs
-    if (epoch + 1) % 1000 == 0:
+    # Save the training loss every 100 epochs
+    if (epoch + 1) % 100 == 0:
         with open(folder_name + '/training_loss.csv', 'a', newline='') as csvfile:
             writer = csv.writer(csvfile)
-            if (epoch + 1) == 1000:
+            if (epoch + 1) == 100:
                 writer.writerow(['Epoch', 'Loss'])  # Write header only once
-            for e, loss in enumerate(train_losses[-1000:]):
-                writer.writerow([epoch + 1 - 999 + e, loss])
+            for e, loss in enumerate(train_losses[-100:]):
+                writer.writerow([epoch + 1 - 99 + e, loss])
 
     # Save the model checkpoint
-    if (epoch + 1) % 2000 == 0:
+    if (epoch + 1) % 100 == 0:
         torch.save(model.state_dict(), folder_name + f'/model_epoch_{epoch+1}.pth')
     # Save the model every 100 epochs if the loss is lower than the best loss
     if (epoch + 1) % 100 == 0:
@@ -98,12 +98,12 @@ for epoch in range(num_epochs):
     scheduler.step(avg_epoch_loss) # ReduceLROnPlateau
 
 
-# Final save of remaining epochs if not a multiple of 500
-if num_epochs % 1000 != 0:
-    remaining_epochs = num_epochs % 1000
+# Final save of remaining epochs if not a multiple of 100
+if num_epochs % 100 != 0:
+    remaining_epochs = num_epochs % 100
     with open(folder_name + '/training_loss.csv', 'a', newline='') as csvfile:
         writer = csv.writer(csvfile)
-        if num_epochs < 1000:
+        if num_epochs < 100:
             writer.writerow(['Epoch', 'Loss'])  # Write header if it hasn't been written
         for e, loss in enumerate(train_losses[-remaining_epochs:]):
             writer.writerow([num_epochs - remaining_epochs + e + 1, loss])
