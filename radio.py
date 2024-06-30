@@ -488,7 +488,7 @@ class rayleigh_chan_lte:
             y_distored = np.zeros(inputs.shape, dtype=np.complex64)
             for i_fr in range(n_fr):
                 tx_signal = np.reshape(inputs[i_fr, :, :], [n_samples_fr, ])
-                timing_offset = np.random.randint(self.min_TO, self.max_TO)
+                timing_offset = np.random.randint(self.min_TO, self.max_TO + 1)
                 fr_sel = i_fr % 4
                 n_taps = self.n_taps_list[fr_sel]
                 ch_coeff = self.ch_coeff_list[fr_sel]
@@ -506,7 +506,7 @@ class rayleigh_chan_lte:
             y_distored = np.zeros(inputs.shape, dtype=np.complex64)
             for i_fr in range(n_fr):
                 tx_signal = np.reshape(inputs[i_fr, :, :], [n_samples_fr, ])
-                timing_offset = np.random.randint(self.min_TO, self.max_TO)
+                timing_offset = np.random.randint(self.min_TO, self.max_TO + 1)
                 fr_sel = i_fr % 5
                 if fr_sel == 0:
                     rx_signal = tx_signal
@@ -534,7 +534,7 @@ class rayleigh_chan_lte:
             # print('y_distored.shape: ', y_distored.shape)
             # print('input for run function: ', inputs.shape)
             for i_fr in range(n_fr):
-                timing_offset = np.random.randint(self.min_TO, self.max_TO)
+                timing_offset = np.random.randint(self.min_TO, self.max_TO + 1)
                 one_hot_vector = np.zeros(self.nfft, dtype=int)
                 one_hot_vector[timing_offset] = 1
                 tx_signal = np.reshape(inputs[i_fr, :, :], [n_samples_fr, ])
